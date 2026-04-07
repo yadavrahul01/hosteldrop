@@ -1,11 +1,33 @@
 
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    
+    
+    toast.className = `toast ${type}`;
+    
+    
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    
+    
+    container.appendChild(toast);
+    
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+
 let cart = []; 
 let totalPrice = 0;
 
 
+
 function loadProducts(category) {
     
-    const url = `http://localhost/hosteldrop/hosteldrop/api/get_products.php?category=${encodeURIComponent(category)}`;
+    const url = `api/get_products.php?category=${encodeURIComponent(category)}`;
     
     
     fetch(url)
@@ -57,42 +79,37 @@ document.addEventListener('DOMContentLoaded', () => {
     chips.forEach(chip => {
         chip.addEventListener('click', function() {
             
-            
             chips.forEach(c => c.classList.remove('active'));
-            
             
             this.classList.add('active');
             
             
             const selectedCategory = this.innerText.trim();
-            
-            
             loadProducts(selectedCategory);
         });
     });
 });
 
 
+
 function addToCart(id, name, price) {
-   
-    cart.push({ id, name, price });
     
+    cart.push({ id, name, price });
     
     totalPrice += parseFloat(price);
     
-    
+   
     const cartList = document.getElementById('cart-items');
     const li = document.createElement('li');
     li.className = 'cart-item';
     li.innerHTML = `<span>${name}</span> <span>₹${price}</span>`;
     cartList.appendChild(li);
     
-    
+   
     document.getElementById('displayTotal').innerText = totalPrice;
-    
-    
     document.getElementById('cartBadge').innerText = cart.length;
 }
+
 
 
 function placeOrder() {
@@ -101,13 +118,13 @@ function placeOrder() {
 
     
     if (blockInput === "" || roomInput === "") {
-       showToast("Please enter your Hostel Block and Room Number.", "error");
+        showToast("Please enter your Hostel Block and Room Number.", "error");
         return; 
     }
     
     
     if (cart.length === 0) {
-        showToast("Your cart is empty! Please add items first.", "error");
+        showToast("Your cart is empty! Please add items first.", "info");
         return;
     }
 
@@ -120,7 +137,7 @@ function placeOrder() {
     };
 
     
-    fetch('http://localhost/hosteldrop/hosteldrop/api/place_order.php', {
+    fetch('api/place_order.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -129,11 +146,10 @@ function placeOrder() {
     })
     .then(response => response.text()) 
     .then(data => {
-        console.log("Server Response:", data);
         try {
             const result = JSON.parse(data);
             if (result.status === "success" || data.includes("success")) {
-                showToast("Order Placed Successfully! Your delivery is on the way.", "success");
+                showToast("Order Placed Successfully! 🛵 Delivery is on the way.", "success");
                 
                 
                 cart = [];
@@ -144,10 +160,10 @@ function placeOrder() {
                 document.getElementById('block').value = '';
                 document.getElementById('room').value = '';
             } else {
-                showToast("Server said: " + result.message, "error");
+                showToast("Server error: " + result.message, "error");
             }
         } catch (error) {
-            showToast("Order processed, but server returned weird text: " + data, "error");
+            alert("Order processed, but server returned weird text: " + data);
         }
     })
     .catch(error => console.error("Fetch API Error:", error));
@@ -155,11 +171,16 @@ function placeOrder() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('checkoutBtn').addEventListener('click', function(event) {
-        event.preventDefault(); 
-        placeOrder();
-    });
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function(event) {
+            event.preventDefault(); 
+            placeOrder();
+        });
+    }
 });
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const contactForm = document.getElementById('contactForm');
@@ -176,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             
             
-            fetch('http://localhost/hosteldrop/hosteldrop/api/send_message.php', {
+            fetch('api/send_message.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData)
@@ -198,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     
@@ -209,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const productCards = document.querySelectorAll('.product-card');
             
-
+            
             productCards.forEach(card => {
                 
                 const title = card.querySelector('.product-title').innerText.toLowerCase();
