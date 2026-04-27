@@ -1,6 +1,6 @@
 🍜 HostelDrop
 
-HostelDrop** is a full-stack, mobile-responsive web application built to solve a real problem for students: emergency late-night delivery
+HostelDrop is a full-stack, mobile-responsive web application built to solve a real problem for students: emergency late-night delivery
 of snacks, beverages, and daily essentials directly to hostel rooms.
 
  🚀 Features
